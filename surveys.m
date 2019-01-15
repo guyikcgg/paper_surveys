@@ -60,16 +60,27 @@ if (length(image_name) == 0)
 end
 
 % Get relative weights
-weights_rel = weights_ans ./ weights;
-answer = weights_rel>th
-answer_num = zeros(m,1);
+weights = ones(size(weights_ans,1), 1) * weights;
+weights_rel = weights_ans ./ theones;
+return
+answer = weights_rel>th;
+answer_num = zeros(1,m);
 for j=1:m
-	if (sum(answer(j,:)) ~= 1)
-		printf('WARNING: unknown answer in file "%s" (row %d)\n', image_answer_name, j);
-	else
+	if (sum(answer(j,:)) == 1)
 		%TODO this could be improved (if answers were not from 1 to whatever)
 		[a, b] = max(answer(j,:));
 		answer_num(j) = b;
+	elseif (sum(answer(j,:)) == 0)
+		printf('WARNING: no answer detected in file "%s" (row %d)\n', image_answer_name, j);
+	elseif (sum(answer(j,:)) == 2)
+		[a, b] = max(answer(j,:));
+		answer(j,b) = 0;
+		[a, b] = max(answer(j,:));
+		answer_num(j) = b;
+
+		printf('WARNING: multiple answers detected in file "%s" (row %d). I think the correct answer is: %d\n', image_answer_name, j, b);
+	else
+		printf('WARNING: unknown answer in file "%s" (row %d)\n', image_answer_name, j);
 	end
 end
 
