@@ -1,14 +1,9 @@
 
-image_name = 'test1.png'
-image_answer_name = 'test2_ans.png'
+image_name = ''
+image_answer_name = 'scan/SKM_C224e19011518080_0001.jpg'
 th = 1.8;
 
-im = load_image(image_name);
-
-%TODO rotate and center
-
-x_centers = [300 358 419 478];
-y_centers = [224 260];
+[x_centers, y_centers] = get_centers(1);
 
 n = length(x_centers);
 m = length(y_centers);
@@ -16,18 +11,23 @@ m = length(y_centers);
 x_borders = centers2borders(x_centers);
 y_borders = centers2borders(y_centers);
 
-% Debug: check the position of the borders
-im2 = im;
-im2(:,x_borders) = 100;
-im2(y_borders,:) = 100;
-imshow(im2);
+if (length(image_name))
+	im = load_image(image_name);
+	%TODO rotate and center
 
-% Get usual weight of every region
-% TODO this might not be possible (though it should)
-weights = zeros(m,n);
-for i=1:n
-	for j=1:m
-		weights(m,i) = sum(sum(im(y_borders(j):y_borders(j+1),x_borders(i):x_borders(i+1))));
+	% Debug: check the position of the borders
+	im2 = im;
+	im2(:,x_borders) = 100;
+	im2(y_borders,:) = 100;
+	imshow(im2);
+
+	% Get usual weight of every region
+	% TODO this might not be possible (though it should)
+	weights = zeros(m,n);
+	for i=1:n
+		for j=1:m
+			weights(m,i) = sum(sum(im(y_borders(j):y_borders(j+1),x_borders(i):x_borders(i+1))));
+		end
 	end
 end
 
@@ -38,12 +38,13 @@ end
 
 % Read answers
 im_ans = load_image(image_answer_name);
+% TODO rotate and center
 
 % Debug: check the position of the borders
-im2 = im_ans;
-im2(:,x_borders) = 100;
-im2(y_borders,:) = 100;
-imshow(im2);
+% im2 = im_ans;
+% im2(:,x_borders) = 100;
+% im2(y_borders,:) = 100;
+% imshow(im2);
 
 % Get weight of every region in answer
 weights_ans = zeros(m,n);
@@ -54,18 +55,24 @@ for i=1:n
 end
 
 % Alternative computation of weights
-weights = median(weights_ans);
+if (length(image_name) == 0)
+	weights = median(weights_ans);
+end
 
 % Get relative weights
 weights_rel = weights_ans ./ weights;
 answer = weights_rel>th
-% if (sum(answer) != 1)
-% 	printf('WARNING: unknown result for survey: %s', image_answer_name);
-% 	answer_num = 0;
-% else
-% 	[a, answer_num] = max(answer);
-% end
+answer_num = zeros(m,1);
+for j=1:m
+	if (sum(answer(j,:)) ~= 1)
+		printf('WARNING: unknown answer in file "%s" (row %d)\n', image_answer_name, j);
+	else
+		%TODO this could be improved (if answers were not from 1 to whatever)
+		[a, b] = max(answer(j,:));
+		answer_num(j) = b;
+	end
+end
 
-% dlmwrite([image_answer_name '.csv'], answer_num, ',');
+dlmwrite([image_answer_name '.csv'], answer_num, ',');
 
 
