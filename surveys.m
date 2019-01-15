@@ -1,42 +1,34 @@
 
 image_name = 'test1.png'
-image_answer_name = 'test1_ans.png'
+image_answer_name = 'test2_ans.png'
 th = 1.8;
 
-% Manually black and white
-im = imread(image_name);
-imshow(im)
-if (size(im,3) > 1)
-	im = double(im);
-	im = mean(im, 3);
-	im = uint8(im);
-end
-
-% Black to white
-im = 255-im;
+im = load_image(image_name);
 
 %TODO rotate and center
 
-% TODO convert to blackscale and apply threshold to eliminate shadowed areas
 x_centers = [300 358 419 478];
+y_centers = [224 260];
 
 n = length(x_centers);
+m = length(y_centers);
 
-x_sizes = diff(x_centers);
-x_sizes = [mean(x_sizes) x_sizes mean(x_sizes)];
-x_shift = x_sizes./2;
-x_borders = [(x_centers(1) - x_shift(1)), (x_centers .+ x_shift(2:end))];
-x_borders = round(x_borders);
-% TODO x_borders can be better calculated
+x_borders = centers2borders(x_centers);
+y_borders = centers2borders(y_centers);
 
+% Debug: check the position of the borders
 im2 = im;
 im2(:,x_borders) = 100;
+im2(y_borders,:) = 100;
 imshow(im2);
 
 % Get usual weight of every region
-weights = zeros(1,n);
+% TODO this might not be possible (though it should)
+weights = zeros(m,n);
 for i=1:n
-	weights(1,i) = sum(sum(im(:,x_borders(i):x_borders(i+1))));
+	for j=1:m
+		weights(m,i) = sum(sum(im(y_borders(j):y_borders(j+1),x_borders(i):x_borders(i+1))));
+	end
 end
 
 
@@ -45,35 +37,35 @@ end
 
 
 % Read answers
-im_ans = imread(image_answer_name);
+im_ans = load_image(image_answer_name);
 
-% Manually black and white
-imshow(im_ans)
-if (size(im_ans,3) > 1)
-	im_ans = double(im_ans);
-	im_ans = mean(im_ans, 3);
-	im_ans = uint8(im_ans);
-end
-
-% Black to white
-im_ans = 255-im_ans;
-
+% Debug: check the position of the borders
+im2 = im_ans;
+im2(:,x_borders) = 100;
+im2(y_borders,:) = 100;
+imshow(im2);
 
 % Get weight of every region in answer
-weights_ans = zeros(1,n);
+weights_ans = zeros(m,n);
 for i=1:n
-	weights_ans(1,i) = sum(sum(im_ans(:,x_borders(i):x_borders(i+1))));
+	for j=1:m
+		weights_ans(j,i) = sum(sum(im_ans(y_borders(j):y_borders(j+1),x_borders(i):x_borders(i+1))));
+	end
 end
 
+% Alternative computation of weights
+weights = median(weights_ans);
+
+% Get relative weights
 weights_rel = weights_ans ./ weights;
-answer = weights_rel>th;
-if (sum(answer) != 1)
-	printf('WARNING: unknown result for survey: %s', image_answer_name);
-	answer_num = 0;
-else
-	[a, answer_num] = max(answer);
-end
+answer = weights_rel>th
+% if (sum(answer) != 1)
+% 	printf('WARNING: unknown result for survey: %s', image_answer_name);
+% 	answer_num = 0;
+% else
+% 	[a, answer_num] = max(answer);
+% end
 
-dlmwrite([image_answer_name '.csv'], answer_num, ',');
+% dlmwrite([image_answer_name '.csv'], answer_num, ',');
 
 
