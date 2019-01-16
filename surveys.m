@@ -2,7 +2,11 @@
 images = ls('scan/*.jpg');
 
 for i=1:size(images,1)
-	A{i} = analyze_page(images(i,:),rem(i,10));
+	try
+		A{i} = analyze_page(images(i,:),rem(i,10));
+	catch(err)
+		disp(err);
+	end
 end
 
 

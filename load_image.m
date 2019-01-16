@@ -2,27 +2,43 @@ function[im] = load_image(image_name)
 
 
 im = imread(image_name);
-% Manually black and white
+% Custom image processing TODO should be elsewhere
+
+% Manually black and white (with some processing)
 if (size(im,3) > 1)
 	im = double(im);
-	% im = im(:,:,1)*0.25 + im(:,:,2)*0.25 + im(:,:,3)*0.5;
+
+	R = im(:,:,1);
+	G = im(:,:,2);
+	B = im(:,:,3);
+
+	% Darkest colors are not that relevant
+	% im(im<50) = 60;
+	R(R<50) = 60;
+
+	% mean of RGB channels
 	% im = mean(im, 3);
-	% im = im(:,:,1);
-	im = im(:,:,1)*2-im(:,:,3)*1;
-	% im = uint8(im);
+
+	% just red channel
+	% im = R;
+
+	% R-B (since normally blue pens are used)
+	im = 2*R-B;
+
 end
 
-% Custom image processing TODO should be elsewhere
+% Bright blue might be darkest than black
+% im = im-min(min(im));
+
+% Increment the bright, saturation is good
+a = 120;
 b = 127;
-a = 110;
-m = 1.5;
+m = 1.6;
 c = b-m*a;
 im = m*im+c;
-% im = im*1.5;
+
+% Back to image format
 im = uint8(im);
-% im(im>180) = 255;
-% im(im<80) = 0;
-% im = im.*1.2;
 
 % Invert colors
 im = 255-im;
