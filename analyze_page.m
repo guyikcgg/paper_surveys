@@ -40,6 +40,8 @@ for j=1:m
 	% The sqrt formula comes from normalizing by row and column
 	weights_rel(j,:) = weights_ans(j,:)./sqrt(weights*median(weights_ans(j,:)));
 end
+
+%debug
 round(weights_rel*100)
 
 % Analyze answers
