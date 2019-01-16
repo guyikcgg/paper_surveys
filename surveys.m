@@ -1,11 +1,28 @@
 
-images = ls('scan/*.jpg');
+% Custom variables
+n_images = 30;
+dst = 'csv';
 
-for i=1:size(images,1)
-	try
-		A{i} = analyze_page(images(i,:),rem(i,10));
-	catch(err)
-		disp(err);
+images = {};
+for i=1:n_images
+	images{i} = sprintf('scan/SKM_C224e19011518080_%04d.jpg', i);
+end
+
+filename = 'survey_1';
+answers_survey = [filename];
+for i=0:n_images-1
+	if (rem(i,10)+1>3)
+		continue;
+	end
+
+	answers_page = analyze_page(images{i+1},rem(i,10)+1);
+	answers_page
+	answers_survey = [answers_survey answers_page];
+
+	if (rem(i,10)+1 == 10)
+		dlmwrite([dst '/' filename '.csv'], answer_num, ',');
+		filename = ['survey ' num2str(i/10+1)];
+		answers_survey = [filename];
 	end
 end
 
