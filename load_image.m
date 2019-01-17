@@ -1,4 +1,4 @@
-function[im] = load_image(image_name)
+function[im] = load_image(image_name, downscale)
 
 
 im = imread(image_name);
@@ -26,6 +26,13 @@ if (size(im,3) > 1)
 	im = 2*R-B;
 
 end
+
+% Downsample
+if (nargin>1)
+	im = downsample(im, downscale);
+	im = downsample(im', downscale)';
+end
+imshow(im/max(max(im)))
 
 % Bright blue might be darkest than black
 % im = im-min(min(im));

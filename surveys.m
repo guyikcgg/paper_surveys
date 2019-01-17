@@ -1,27 +1,35 @@
 
 % Custom variables
 n_images = 30;
+n_ref    = 10;
 dst = 'csv';
+downscale = 3;
 
-images = {};
+images_ans = {};
+images_ref = {};
+for i=1:n_ref
+	images_ans{i} = sprintf('scan/SKM_C224e19011518080_%04d.jpg', i);
+end
 for i=1:n_images
-	images{i} = sprintf('scan/SKM_C224e19011518080_%04d.jpg', i);
+	images_ans{i} = sprintf('scan/SKM_C224e19011518080_%04d.jpg', i);
+	images_ref{i} = sprintf('scan/reference/SKM_C224e19011619371_%04d.jpg', i);
 end
 
 filename = 'survey_1';
 answers_survey = [filename];
 for i=0:n_images-1
-	if (rem(i,10)+1>3)
+	if (rem(i,n_ref)+1>3)
 		continue;
 	end
 
-	answers_page = analyze_page(images{i+1},rem(i,10)+1);
+	page = rem(i, n_ref)+1; % TODO this 1 is the starting point
+	answers_page = analyze_page(images_ans{i+1}, page, images_ref{page}, downscale);
 	answers_page
 	answers_survey = [answers_survey answers_page];
 
-	if (rem(i,10)+1 == 10)
+	if (rem(i,n_ref)+1 == n_ref)
 		dlmwrite([dst '/' filename '.csv'], answer_num, ',');
-		filename = ['survey ' num2str(i/10+1)];
+		filename = ['survey ' num2str(i/n_ref+1)];
 		answers_survey = [filename];
 	end
 end

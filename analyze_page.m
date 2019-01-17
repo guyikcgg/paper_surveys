@@ -1,9 +1,18 @@
-function[answer_num] = analyze_page(image_answer_name, page_number)
+function[answer_num] = analyze_page(image_answer_name, page_number, image_ref_name, downscale)
 
-th = 1.6;
+if (nargin>3)
+	d = downscale;
+else
+	d = 1;
+end
+if (nargin>2)
+	im_ref = load_image(image_ref_name, d);
+end
+
+th = 2.2;
 
 % Get information for this page number
-[x_centers, y_centers] = get_centers(page_number);
+[x_centers, y_centers] = get_centers(page_number, d);
 
 n = length(x_centers);
 m = length(y_centers);
@@ -12,13 +21,35 @@ x_borders = centers2borders(x_centers);
 y_borders = centers2borders(y_centers);
 
 % Read image with answers
-im_ans = load_image(image_answer_name);
-% TODO rotate and center
+im_ans = load_image(image_answer_name, d);
+
+% TODO rotate?
+
+% Center the image to match the reference
+if (nargin>2)
+	im_ref(im_ref<100)=0;
+	im_ans(im_ans<100)=0;
+	% imshow(uint8(im_ref2/max(max(im_ref2))));
+	% Debug
+	% figure(1); imshow(im_ref2);
+	% figure(2); imshow(im_ans2);
+	[dx, dy, im_ans] = get_displacement(im_ref, im_ans);
+	% Alternative to changing im_ans
+	% x_borders = round(x_borders/3 + dx);
+	% y_borders = round(y_borders/3 + dy);
+
+	% im_ans = im_ans - im_ref;
+
+	% Debug
+	dx, dy
+	% figure(2); imshow(im_ans2);
+end
 
 % Debug: check the position of the borders
 im2 = im_ans;
 im2(:,x_borders) = 100;
 im2(y_borders,:) = 100;
+figure(3);
 imshow(im2);
 % pause()
 
