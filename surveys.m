@@ -15,22 +15,27 @@ for i=1:n_images
 	images_ref{i} = sprintf('scan/reference/SKM_C224e19011619371_%04d.jpg', i);
 end
 
-filename = 'survey_1';
-answers_survey = [filename];
+filename = 'survey_';
+% answers_survey = [filename];
+answers_survey = [];
 for i=0:n_images-1
-	if (rem(i,n_ref)+1>3)
-		continue;
-	end
+	% if (rem(i,n_ref)+1>3)
+	% 	continue;
+	% end
 
 	page = rem(i, n_ref)+1; % TODO this 1 is the starting point
 	answers_page = analyze_page(images_ans{i+1}, page, images_ref{page}, downscale);
-	answers_page
+	% answers_page = [1 2 3];
 	answers_survey = [answers_survey answers_page];
 
 	if (rem(i,n_ref)+1 == n_ref)
-		dlmwrite([dst '/' filename '.csv'], answer_num, ',');
-		filename = ['survey ' num2str(i/n_ref+1)];
-		answers_survey = [filename];
+		filename = ['survey_' num2str((i+1)/n_ref)];
+		fid = fopen([dst '/' filename '.csv'], 'w');
+		fprintf(fid, '%s,', filename);
+		fclose(fid);
+		dlmwrite([dst '/' filename '.csv'], answers_survey, '-append');
+		% answers_survey = [filename];
+		answers_survey = [];
 	end
 end
 
