@@ -7,8 +7,8 @@ m2 = round(m/3);
 n2 = round(n/3);
 m3 = round(m/3*2);
 n3 = round(n/3*2);
-A2 = A(m2:m3,n2:n3);
-B2 = B(m2:m3,n2:n3);
+A2 = A(1:m2,n2:n3);
+B2 = B(1:m2,n2:n3);
 
 C = xcorr2(A2,B2);
 [c1,d1]=max(max(C,[],2));
