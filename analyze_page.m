@@ -120,7 +120,7 @@ for j=1:m
 		if (b != results(j,2))
 			results(j,2) = b;
 			printf('WARNING: multiple answers detected in file "%s" (row %d). I think the correct answer is: %d\n', image_answer_name, j, b);
-		else
+		elseif (abs(results(j,1)-mean(ink)) > 3*iq)
 			printf('WARNING: outlier in file "%s" (row %d). The selected answer is: %d\n', image_answer_name, j, b);
 		end
 	end
