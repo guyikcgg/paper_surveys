@@ -32,7 +32,9 @@ if (nargin>1)
 	im = downsample(im, downscale);
 	im = downsample(im', downscale)';
 end
-imshow(im/max(max(im)))
+
+% Debug
+% imshow(im/max(max(im)))
 
 % Bright blue might be darkest than black
 % im = im-min(min(im));

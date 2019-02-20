@@ -41,16 +41,16 @@ if (nargin>2)
 	% im_ans = im_ans - im_ref;
 
 	% Debug
-	dx, dy
+	% dx, dy
 	% figure(2); imshow(im_ans2);
 end
 
 % Debug: check the position of the borders
-im2 = im_ans;
-im2(:,x_borders) = 100;
-im2(y_borders,:) = 100;
-figure(3);
-imshow(im2);
+% im2 = im_ans;
+% im2(:,x_borders) = 100;
+% im2(y_borders,:) = 100;
+% figure(3);
+% imshow(im2);
 % pause()
 
 % Get weight of every region in answer
