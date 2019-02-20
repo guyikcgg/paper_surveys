@@ -1,3 +1,4 @@
+pkg load signal
 
 % Custom variables
 n_images = 30;
@@ -5,81 +6,48 @@ n_ref    = 10;
 dst = 'csv';
 downscale = 3;
 
-images_ans = {};
-images_ref = {};
-for i=1:n_ref
-	images_ans{i} = sprintf('scan/SKM_C224e19011518080_%04d.jpg', i);
-end
-for i=1:n_images
-	images_ans{i} = sprintf('scan/SKM_C224e19011518080_%04d.jpg', i);
-	images_ref{i} = sprintf('scan/reference/SKM_C224e19011619371_%04d.jpg', i);
-end
+images_ans = dir('scan/*.jpg');
+images_ref = dir('scan/reference/*.jpg');
 
-filename = 'survey_';
+n_ref    = length(images_ref)
+n_images = length(images_ans)
+
+
+%filename = 'survey_';
 % answers_survey = [filename];
-answers_survey = [];
-for i=0:n_images-1
-	% if (rem(i,n_ref)+1>3)
-	% 	continue;
-	% end
-
-	page = rem(i, n_ref)+1; % TODO this 1 is the starting point
-	answers_page = analyze_page(images_ans{i+1}, page, images_ref{page}, downscale);
-	% answers_page = [1 2 3];
-	answers_survey = [answers_survey answers_page];
-
-	if (rem(i,n_ref)+1 == n_ref)
-		filename = ['survey_' num2str((i+1)/n_ref)];
-		fid = fopen([dst '/' filename '.csv'], 'w');
-		fprintf(fid, '%s,', filename);
-		fclose(fid);
-		dlmwrite([dst '/' filename '.csv'], answers_survey, '-append');
-		% answers_survey = [filename];
-		answers_survey = [];
-	end
+if (rem(n_images,n_ref) > 0)
+  error('ERROR');
 end
 
+for i=0:n_images/n_ref-1
+  answers_survey{i+1,1} = images_ans(n_ref*i+1).name;
+  answers_survey{i+1,2} = [];
+  for j=0:n_ref-1
+    im_name   = images_ans(n_ref*i+j+1).name;
+    im_folder = images_ans(n_ref*i+j+1).folder;
+    im_num = str2num(im_name(end-7:end-4));
+    page = rem(im_num, n_ref);
+    if (page == 0)
+      page = n_ref;
+    end
 
-return
-
-image_name = ''
-image_answer_name = 'scan/SKM_C224e19011518080_0001.jpg'
-th = 1.8;
-
-[x_centers, y_centers] = get_centers(1);
-
-n = length(x_centers);
-m = length(y_centers);
-
-x_borders = centers2borders(x_centers);
-y_borders = centers2borders(y_centers);
-
-if (length(image_name))
-	im = load_image(image_name);
-	%TODO rotate and center
-
-	% Debug: check the position of the borders
-	im2 = im;
-	im2(:,x_borders) = 100;
-	im2(y_borders,:) = 100;
-	imshow(im2);
-
-	% Get usual weight of every region
-	% TODO this might not be possible (though it should)
-	weights = zeros(m,n);
-	for i=1:n
-		for j=1:m
-			weights(m,i) = sum(sum(im(y_borders(j):y_borders(j+1),x_borders(i):x_borders(i+1))));
-		end
-	end
+    ref_name   = images_ref(page).name;
+    ref_folder = images_ref(page).folder;
+    
+    answers_page = analyze_page([im_folder '/' im_name], page, [ref_folder '/' ref_name], downscale);
+    
+	  answers_survey{i+1,2} = [answers_survey{i+1,2} answers_page];
+    
+    movefile([im_folder '/' im_name], [im_folder '/done/']);
+  end
 end
 
-
-
-
-
-
-
-dlmwrite([image_answer_name '.csv'], answer_num, ',');
+for i=1:n_images/n_ref
+  filename = answers_survey{i,1};
+  fid = fopen([dst '/' 'output' '.csv'], 'a');
+  fprintf(fid, '%s,', filename);
+  fclose(fid);
+  dlmwrite([dst '/' 'output' '.csv'], answers_survey{i,2}, '-append');
+end
 
 
