@@ -9,7 +9,11 @@ format for the survey is the following type of questionaire.
  Questions | Answers
 -----------|---------
  Question1 | 1 2 ~~3~~ 4
- Question2 | 1 2 3 ~~4~~
+ Question2 | 1 ~~2~~ 3 4
+
+
+Disclaimer: methods such as digit recognition, OCR or artificial intelligence
+are not used in this project (so far).
 
 
 ## How does it works
@@ -34,11 +38,13 @@ single question.
 You're all set! You should now have a beautiful CSV file with the answers of
 your survey.
 
+
 ## Performance
 The script takes a while to run, that's true... I guess image processing is
 always kind of heavy stuff. Apart from this, the script performs pretty well
 (as far as I've measured). First results suggest a precission over 95% with
 scanned paper questinaires.
+
 
 ## Contributing
 I started this project becausge I didn't know any specific tool to perform this
